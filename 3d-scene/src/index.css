@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  body,
+  html,
+  #root {
+    @apply m-0 p-0 w-screen h-screen overflow-hidden bg-black text-white;
+  }
+}
+
+/* ===== OS THEME CSS VARIABLES ===== */
+
+/* Default: Terminal / Hacker theme */
+:root,
+[data-theme="terminal"] {
+  --os-bg: #0c0c0b;
+  --os-primary: #ffaa44;
+  --os-primary-rgb: 255, 170, 68;
+  --os-window-bg: rgba(12, 12, 11, 0.95);
+  --os-header-bg: #111111;
+  --os-border: rgba(255, 170, 68, 0.3);
+  --os-border-active: rgba(255, 170, 68, 0.6);
+  --os-text: #e2d1b3;
+  /* Pale Amber for contrast against primary #ffaa44 */
+  --os-text-secondary: rgba(226, 209, 179, 0.7);
+  --os-text-muted: rgba(226, 209, 179, 0.5);
+  --os-content-bg: rgba(0, 0, 0, 0.5);
+  --os-content-text: rgba(255, 170, 68, 0.9);
+  --os-glass: rgba(0, 0, 0, 0.9);
+  --os-icon-text: white;
+  --os-radius: 0.5rem;
+  --os-font: 'Fira Code', ui-monospace, monospace;
+  --os-taskbar-pos: bottom;
+  --os-ctrl-pos: right;
+  --os-menu-bg: rgba(0, 0, 0, 0.95);
+  --os-hover: rgba(255, 170, 68, 0.2);
+  --os-ctx-bg: #1a1a1a;
+}
+
+/* Windows 11 Dark */
+[data-theme="windows-dark"] {
+  --os-bg: #1a1a2e;
+  --os-primary: #60cdff;
+  --os-primary-rgb: 96, 205, 255;
+  --os-window-bg: rgba(32, 32, 32, 0.92);
+  --os-header-bg: #202020;
+  --os-border: rgba(255, 255, 255, 0.08);
+  --os-border-active: rgba(96, 205, 255, 0.5);
+  --os-text: #ffffff;
+  --os-text-secondary: rgba(255, 255, 255, 0.7);
+  --os-text-muted: rgba(255, 255, 255, 0.4);
+  --os-content-bg: #282828;
+  --os-content-text: rgba(255, 255, 255, 0.9);
+  --os-glass: rgba(32, 32, 32, 0.85);
+  --os-icon-text: white;
+  --os-radius: 0.5rem;
+  --os-font: 'Segoe UI', system-ui, sans-serif;
+  --os-taskbar-pos: bottom;
+  --os-ctrl-pos: right;
+  --os-menu-bg: rgba(44, 44, 44, 0.95);
+  --os-hover: rgba(255, 255, 255, 0.08);
+  --os-ctx-bg: #2c2c2c;
+}
+
+/* Windows 11 Light */
+[data-theme="windows-light"] {
+  --os-bg: #f3f3f3;
+  --os-primary: #0078d4;
+  --os-primary-rgb: 0, 120, 212;
+  --os-window-bg: rgba(243, 243, 243, 0.95);
+  --os-header-bg: #f3f3f3;
+  --os-border: rgba(0, 0, 0, 0.08);
+  --os-border-active: rgba(0, 120, 212, 0.5);
+  --os-text: #1a1a1a;
+  --os-text-secondary: rgba(0, 0, 0, 0.6);
+  --os-text-muted: rgba(0, 0, 0, 0.35);
+  --os-content-bg: #ffffff;
+  --os-content-text: #333333;
+  --os-glass: rgba(243, 243, 243, 0.85);
+  --os-icon-text: #1a1a1a;
+  --os-radius: 0.5rem;
+  --os-font: 'Segoe UI', system-ui, sans-serif;
+  --os-taskbar-pos: bottom;
+  --os-ctrl-pos: right;
+  --os-menu-bg: rgba(255, 255, 255, 0.95);
+  --os-hover: rgba(0, 0, 0, 0.05);
+  --os-ctx-bg: #ffffff;
+}
+
+/* macOS Dark */
+[data-theme="mac-dark"] {
+  --os-bg: #1e1e1e;
+  --os-primary: #007aff;
+  --os-primary-rgb: 0, 122, 255;
+  --os-window-bg: rgba(40, 40, 40, 0.88);
+  --os-header-bg: #383838;
+  --os-border: rgba(255, 255, 255, 0.1);
+  --os-border-active: rgba(0, 122, 255, 0.5);
+  --os-text: #ffffff;
+  --os-text-secondary: rgba(255, 255, 255, 0.65);
+  --os-text-muted: rgba(255, 255, 255, 0.4);
+  --os-content-bg: #2a2a2a;
+  --os-content-text: rgba(255, 255, 255, 0.85);
+  --os-glass: rgba(30, 30, 30, 0.8);
+  --os-icon-text: white;
+  --os-radius: 0.75rem;
+  --os-font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --os-taskbar-pos: bottom;
+  --os-ctrl-pos: left;
+  --os-menu-bg: rgba(40, 40, 40, 0.92);
+  --os-hover: rgba(255, 255, 255, 0.08);
+  --os-ctx-bg: #383838;
+}
+
+/* macOS Light */
+[data-theme="mac-light"] {
+  --os-bg: #ececec;
+  --os-primary: #007aff;
+  --os-primary-rgb: 0, 122, 255;
+  --os-window-bg: rgba(236, 236, 236, 0.92);
+  --os-header-bg: #e8e8e8;
+  --os-border: rgba(0, 0, 0, 0.12);
+  --os-border-active: rgba(0, 122, 255, 0.4);
+  --os-text: #1d1d1f;
+  --os-text-secondary: rgba(0, 0, 0, 0.55);
+  --os-text-muted: rgba(0, 0, 0, 0.3);
+  --os-content-bg: #ffffff;
+  --os-content-text: #333333;
+  --os-glass: rgba(255, 255, 255, 0.75);
+  --os-icon-text: #1d1d1f;
+  --os-radius: 0.75rem;
+  --os-font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --os-taskbar-pos: bottom;
+  --os-ctrl-pos: left;
+  --os-menu-bg: rgba(255, 255, 255, 0.9);
+  --os-hover: rgba(0, 0, 0, 0.05);
+  --os-ctx-bg: #ffffff;
+}
+
+/* Kali Linux */
+[data-theme="kali"] {
+  --os-bg: #1a1a2e;
+  --os-primary: #367bf5;
+  --os-primary-rgb: 54, 123, 245;
+  --os-window-bg: rgba(30, 30, 46, 0.95);
+  --os-header-bg: #1e1e2e;
+  --os-border: rgba(54, 123, 245, 0.3);
+  --os-border-active: rgba(54, 123, 245, 0.7);
+  --os-text: #cdd6f4;
+  --os-text-secondary: rgba(205, 214, 244, 0.7);
+  --os-text-muted: rgba(205, 214, 244, 0.4);
+  --os-content-bg: #181825;
+  --os-content-text: #cdd6f4;
+  --os-glass: rgba(17, 17, 27, 0.95);
+  --os-icon-text: #cdd6f4;
+  --os-radius: 0px;
+  --os-font: 'Ubuntu', 'Liberation Mono', monospace;
+  --os-taskbar-pos: bottom;
+  --os-ctrl-pos: right;
+  --os-menu-bg: rgba(24, 24, 37, 0.98);
+  --os-hover: rgba(54, 123, 245, 0.15);
+  --os-ctx-bg: #1e1e2e;
+}
+
+/* Windows 11 Style Orbital Loading Animation */
+@keyframes winLoadingPhase {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  25% {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+
+  50% {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+
+  60% {
+    opacity: 0;
+  }
+
+  100% {
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.win-dot-container {
+  width: 48px;
+  height: 48px;
+  position: relative;
+}
+
+.win-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: winLoadingPhase 2s cubic-bezier(0.48, 0.04, 0.52, 0.96) infinite;
+  opacity: 0;
+}
+
+.win-dot::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 12%;
+  height: 12%;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translateX(-50%);
+}
+
+.win-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.win-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.win-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.win-dot:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+.win-dot:nth-child(5) {
+  animation-delay: 0.6s;
+}
