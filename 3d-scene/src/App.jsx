@@ -192,9 +192,17 @@ function GamePage({ onBack }) {
 function RE7MainMenu({ onDiveIn, isLoaded }) {
   const container = useRef(null);
   const hasAnimated = useRef(false);
+  const [showContent, setShowContent] = useState(false);
+
+  // Show content after 1.5s max, even if 3D model hasn't loaded yet
+  useEffect(() => {
+    if (isLoaded) { setShowContent(true); return; }
+    const timer = setTimeout(() => setShowContent(true), 1500);
+    return () => clearTimeout(timer);
+  }, [isLoaded]);
 
   useGSAP(() => {
-    if (!isLoaded || hasAnimated.current) return;
+    if (!showContent || hasAnimated.current) return;
     hasAnimated.current = true;
 
     const tl = gsap.timeline();
@@ -221,7 +229,7 @@ function RE7MainMenu({ onDiveIn, isLoaded }) {
       '-=0.4'
     );
 
-  }, { scope: container, dependencies: [isLoaded] });
+  }, { scope: container, dependencies: [showContent] });
 
   return (
     <div ref={container} className="absolute inset-0 z-10 flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 md:px-24 pointer-events-none text-white overflow-hidden">
