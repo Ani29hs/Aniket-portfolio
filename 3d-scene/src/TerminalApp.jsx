@@ -128,7 +128,10 @@ export default function TerminalApp({ onLaunchApp }) {
                                         else throw new Error("Invalid format. Use: add_project https://github.com/owner/repo");
                                     }
 
-                                    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+                                    const ghHeaders = {};
+                                    const ghToken = import.meta.env.VITE_GITHUB_TOKEN;
+                                    if (ghToken) ghHeaders['Authorization'] = `token ${ghToken}`;
+                                    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: ghHeaders });
                                     if (!res.ok) throw new Error(`API Error: ${res.status}`);
                                     const data = await res.json();
 

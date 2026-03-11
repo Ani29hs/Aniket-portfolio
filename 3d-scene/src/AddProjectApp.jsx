@@ -88,7 +88,10 @@ export default function AddProjectApp() {
             log(`CONN · Handshake  api.github.com`);
             setProgress(38);
 
-            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+            const ghHeaders = {};
+            const ghToken = import.meta.env.VITE_GITHUB_TOKEN;
+            if (ghToken) ghHeaders['Authorization'] = `token ${ghToken}`;
+            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: ghHeaders });
             if (!res.ok) {
                 if (res.status === 404) throw new Error("Repository not found or is private.");
                 if (res.status === 403) throw new Error("GitHub rate limit exceeded.");

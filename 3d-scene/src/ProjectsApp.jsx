@@ -926,7 +926,11 @@ export default function App() {
     useEffect(() => {
         const customProjects = JSON.parse(localStorage.getItem('systemos_custom_projects') || '[]');
 
-        fetch("https://api.github.com/users/ani29hs/repos?sort=updated&per_page=20")
+        const ghHeaders = {};
+        const ghToken = import.meta.env.VITE_GITHUB_TOKEN;
+        if (ghToken) ghHeaders['Authorization'] = `token ${ghToken}`;
+
+        fetch("https://api.github.com/users/ani29hs/repos?sort=updated&per_page=20", { headers: ghHeaders })
             .then(res => res.json())
             .then(data => {
                 let mapped = [];
