@@ -322,7 +322,6 @@ function ProjectCard({ project, index, onRemove }) {
                     color: "#fff",
                     padding: "20px 18px 18px",
                 }}
-                onClick={() => { if (project.url) window.open(project.url, "_blank"); }}
             >
                 {/* Background gradient */}
                 <div className="pc-bg" style={{ position: "absolute", inset: 0, background: `linear-gradient(${grad})`, opacity: 0.3, filter: "saturate(1.7)", pointerEvents: "none" }} />
@@ -410,7 +409,6 @@ function ProjectCard({ project, index, onRemove }) {
                 background: "#07070f", color: "#fff",
                 transformStyle: "preserve-3d",
             }}
-            onClick={() => { if (project.url) window.open(project.url, "_blank"); }}
         >
             <div className="pc-bg" style={{ position: "absolute", inset: 0, background: `linear-gradient(${grad})`, opacity: 0.2, filter: "saturate(1.7)" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(4,4,12,0.97) 0%, rgba(4,4,12,0.45) 55%, transparent 100%)" }} />
@@ -958,8 +956,8 @@ export default function App() {
                             statusColor: r.archived ? "#ff4444" : "#00ff87",
                             desc: r.description || "No description provided for this repository.",
                             tech: r.topics?.length ? r.topics : (r.language ? [r.language] : ["Source"]),
-                            color: c.color, grad: c.grad,
-                            url: r.homepage || r.html_url,
+                            deployedUrl: r.homepage || null,
+                            url: r.html_url,
                         };
                     });
                 } else {

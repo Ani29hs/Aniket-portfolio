@@ -20,6 +20,7 @@ export default function TerminalApp({ onLaunchApp }) {
     const [input, setInput] = useState('');
     const [commandHistory, setCommandHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+    const [awaitingPasswordFor, setAwaitingPasswordFor] = useState(null);
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -33,28 +34,98 @@ export default function TerminalApp({ onLaunchApp }) {
         inputRef.current?.focus();
     }, []);
 
+    const executeAddProject = async (url) => {
+        try {
+            let owner, repo;
+            try {
+                const urlObj = new URL(url);
+                const parts = urlObj.pathname.split('/').filter(Boolean);
+                if (parts.length < 2) throw new Error();
+                owner = parts[0];
+                repo = parts[1];
+            } catch (err) {
+                const parts = url.split('/').filter(Boolean);
+                if (parts.length === 2) { owner = parts[0]; repo = parts[1]; }
+                else throw new Error("Invalid format. Use: add_project https://github.com/owner/repo");
+            }
+
+            const ghHeaders = {};
+            const ghToken = import.meta.env.VITE_GITHUB_TOKEN;
+            if (ghToken) ghHeaders['Authorization'] = `token ${ghToken}`;
+            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: ghHeaders });
+            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            const data = await res.json();
+
+            const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+            const newProject = {
+                id: `custom_${Date.now()}_${data.id}`,
+                title: data.name,
+                tag: data.stargazers_count || 0,
+                year: new Date(data.updated_at).getFullYear().toString(),
+                status: data.archived ? "ARCHIVED" : "ACTIVE",
+                statusColor: data.archived ? "#ff4444" : "#00ff87",
+                desc: data.description || "No description provided for this repository.",
+                tech: data.topics?.length ? data.topics : (data.language ? [data.language] : ["Source"]),
+                color: c.color, grad: c.grad, 
+                deployedUrl: data.homepage || null, url: data.html_url,
+                isCustom: true
+            };
+
+            const existing = JSON.parse(localStorage.getItem('systemos_custom_projects') || '[]');
+            if (existing.some(p => p.url === newProject.url)) {
+                setHistory(prev => [...prev, { type: 'output', content: `Error: Project '${data.name}' already exists in archive.` }]);
+                return;
+            }
+
+            existing.unshift(newProject);
+            localStorage.setItem('systemos_custom_projects', JSON.stringify(existing));
+            window.dispatchEvent(new Event('systemos_projects_updated'));
+
+            setHistory(prev => [...prev, { type: 'output', content: `Success: Injected project '${data.name}' into archive.` }]);
+        } catch (e) {
+            setHistory(prev => [...prev, { type: 'output', content: `Error during transmission: ${e.message}` }]);
+        }
+    };
+
     const handleCommand = (e) => {
         if (e.key === 'ArrowUp') {
             e.preventDefault();
-            if (commandHistory.length > 0 && historyIndex < commandHistory.length - 1) {
+            if (commandHistory.length > 0 && historyIndex < commandHistory.length - 1 && !awaitingPasswordFor) {
                 const nextIdx = historyIndex + 1;
                 setHistoryIndex(nextIdx);
                 setInput(commandHistory[commandHistory.length - 1 - nextIdx]);
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
-            if (historyIndex > 0) {
+            if (historyIndex > 0 && !awaitingPasswordFor) {
                 const prevIdx = historyIndex - 1;
                 setHistoryIndex(prevIdx);
                 setInput(commandHistory[commandHistory.length - 1 - prevIdx]);
-            } else if (historyIndex === 0) {
+            } else if (historyIndex === 0 && !awaitingPasswordFor) {
                 setHistoryIndex(-1);
                 setInput('');
             }
         } else if (e.key === 'Enter') {
+            const rawInput = input;
             const cmd = input.trim().toLowerCase();
             setInput('');
             setHistoryIndex(-1);
+
+            if (awaitingPasswordFor) {
+                const urlToProcess = awaitingPasswordFor;
+                setAwaitingPasswordFor(null);
+                setHistory(prev => [...prev, { type: 'input', content: `password: *********` }]);
+
+                if (rawInput.trim() !== "Aniket292006") {
+                     setHistory(prev => [...prev, { type: 'output', content: 'Error: ACCESS DENIED. Incorrect password.' }]);
+                     return;
+                }
+
+                setHistory(prev => [...prev, { type: 'output', content: 'Credentials accepted. Establishing uplink to GitHub mainframe...' }]);
+                executeAddProject(urlToProcess);
+                return;
+            }
+
             if (cmd) {
                 setCommandHistory(prev => [...prev, input.trim()]);
             }
@@ -62,8 +133,9 @@ export default function TerminalApp({ onLaunchApp }) {
 
             if (!cmd) return;
 
-            const args = cmd.split(' ');
-            const baseCmd = args[0];
+            // Use original input for args to preserve case (important for passwords), but keep base command lowercase
+            const args = input.trim().split(/\s+/);
+            const baseCmd = args[0].toLowerCase();
 
             let output = [];
 
@@ -106,69 +178,8 @@ export default function TerminalApp({ onLaunchApp }) {
                 case 'add_project':
                     if (args.length > 1) {
                         const url = args[1];
-                        const confirmed = window.confirm("AUTHENTICATION REQUIRED.\nConfirm admin access to add project?");
-
-                        if (confirmed) {
-                            output.push('Credentials accepted. Establishing uplink to GitHub mainframe...');
-
-                            // Async fetching handling within the sync switch statement
-                            // Use an IIFE so we don't have to make handleCommand fully async, avoiding weird UI states
-                            (async () => {
-                                try {
-                                    let owner, repo;
-                                    try {
-                                        const urlObj = new URL(url);
-                                        const parts = urlObj.pathname.split('/').filter(Boolean);
-                                        if (parts.length < 2) throw new Error();
-                                        owner = parts[0];
-                                        repo = parts[1];
-                                    } catch (err) {
-                                        const parts = url.split('/').filter(Boolean);
-                                        if (parts.length === 2) { owner = parts[0]; repo = parts[1]; }
-                                        else throw new Error("Invalid format. Use: add_project https://github.com/owner/repo");
-                                    }
-
-                                    const ghHeaders = {};
-                                    const ghToken = import.meta.env.VITE_GITHUB_TOKEN;
-                                    if (ghToken) ghHeaders['Authorization'] = `token ${ghToken}`;
-                                    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: ghHeaders });
-                                    if (!res.ok) throw new Error(`API Error: ${res.status}`);
-                                    const data = await res.json();
-
-                                    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
-                                    const newProject = {
-                                        id: `custom_${Date.now()}_${data.id}`,
-                                        title: data.name,
-                                        tag: data.stargazers_count || 0,
-                                        year: new Date(data.updated_at).getFullYear().toString(),
-                                        status: data.archived ? "ARCHIVED" : "ACTIVE",
-                                        statusColor: data.archived ? "#ff4444" : "#00ff87",
-                                        desc: data.description || "No description provided for this repository.",
-                                        tech: data.topics?.length ? data.topics : (data.language ? [data.language] : ["Source"]),
-                                        color: c.color, grad: c.grad, url: data.homepage || data.html_url,
-                                        isCustom: true
-                                    };
-
-                                    const existing = JSON.parse(localStorage.getItem('systemos_custom_projects') || '[]');
-                                    if (existing.some(p => p.url === newProject.url)) {
-                                        setHistory(prev => [...prev, { type: 'output', content: `Error: Project '${data.name}' already exists in archive.` }]);
-                                        return;
-                                    }
-
-                                    existing.unshift(newProject);
-                                    localStorage.setItem('systemos_custom_projects', JSON.stringify(existing));
-                                    window.dispatchEvent(new Event('systemos_projects_updated'));
-
-                                    setHistory(prev => [...prev, { type: 'output', content: `Success: Injected project '${data.name}' into archive.` }]);
-                                } catch (e) {
-                                    setHistory(prev => [...prev, { type: 'output', content: `Error during transmission: ${e.message}` }]);
-                                }
-                            })();
-                        } else {
-                            if (pwd !== null) {
-                                output.push('Error: ACCESS DENIED. Incorrect password.');
-                            }
-                        }
+                        setAwaitingPasswordFor(url);
+                        output.push('Please enter admin password:');
                     } else {
                         output.push('Usage: add_project <github_url>');
                     }
@@ -215,10 +226,12 @@ export default function TerminalApp({ onLaunchApp }) {
                 ))}
 
                 <div className="flex items-center mt-3 group">
-                    <span className="mr-3 opacity-70 whitespace-nowrap text-white">asharma@system:~#</span>
+                    <span className="mr-3 opacity-70 whitespace-nowrap text-white">
+                        {awaitingPasswordFor ? 'Password:' : 'asharma@system:~#'}
+                    </span>
                     <input
                         ref={inputRef}
-                        type="text"
+                        type={awaitingPasswordFor ? "password" : "text"}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleCommand}
