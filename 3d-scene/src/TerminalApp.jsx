@@ -106,9 +106,9 @@ export default function TerminalApp({ onLaunchApp }) {
                 case 'add_project':
                     if (args.length > 1) {
                         const url = args[1];
-                        const pwd = window.prompt("AUTHENTICATION REQUIRED. Enter Admin Password:");
+                        const confirmed = window.confirm("AUTHENTICATION REQUIRED.\nConfirm admin access to add project?");
 
-                        if (pwd === "Aniket292006") {
+                        if (confirmed) {
                             output.push('Credentials accepted. Establishing uplink to GitHub mainframe...');
 
                             // Async fetching handling within the sync switch statement

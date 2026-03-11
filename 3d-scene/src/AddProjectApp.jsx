@@ -55,6 +55,7 @@ export default function AddProjectApp() {
     const [parsed, setParsed] = useState(null);
     const [logs, setLogs] = useState([]);
     const [progress, setProgress] = useState(0);
+    const [password, setPassword] = useState('');
     const logsRef = useRef(null);
 
     useEffect(() => { logsRef.current?.scrollTo({ top: 9999, behavior: 'smooth' }); }, [logs]);
@@ -103,8 +104,7 @@ export default function AddProjectApp() {
             setStep(2); await new Promise(r => setTimeout(r, 200));
             log(`AUTH · Requesting admin clearance…`, 'warn');
 
-            const pwd = window.prompt("AUTHENTICATION REQUIRED\nEnter Admin Password:");
-            if (pwd !== "Aniket292006") throw new Error("ACCESS DENIED — incorrect credentials.");
+            if (password !== "Aniket292006") throw new Error("ACCESS DENIED — incorrect credentials.");
 
             setStep(3); setProgress(80);
             log(`PASS · Identity verified — clearance granted`, 'ok');
@@ -157,7 +157,7 @@ export default function AddProjectApp() {
             setProgress(100);
             log(`DONE · "${data.name}" injected into registry`, 'ok');
             setStatus({ type: 'success', msg: data.name, repoData: data });
-            setUrl(''); setDeployedUrl(''); setStep(4);
+            setUrl(''); setDeployedUrl(''); setPassword(''); setStep(4);
         } catch (err) {
             log(`ERR! · ${err.message}`, 'err');
             setStatus({ type: 'error', msg: err.message });
@@ -274,6 +274,21 @@ export default function AddProjectApp() {
                                     type="text" value={deployedUrl} onChange={e => setDeployedUrl(e.target.value)}
                                     placeholder="https://your-app.com"
                                     disabled={loading}
+                                    style={{ width: '100%', boxSizing: 'border-box', background: 'var(--os-bg)', border: '1px solid var(--os-border)', color: 'var(--os-text)', padding: '9px 12px', fontFamily: '"Share Tech Mono",monospace', fontSize: 11, outline: 'none', letterSpacing: '0.02em', caretColor: P, transition: 'border-color 0.25s', borderRadius: 2 }}
+                                    onFocus={e => e.target.style.borderColor = 'var(--os-primary)'}
+                                    onBlur={e => e.target.style.borderColor = 'var(--os-border)'}
+                                />
+                            </div>
+
+                            {/* Admin Password */}
+                            <div>
+                                <div style={{ fontSize: 8, fontWeight: 'bold', letterSpacing: '0.2em', color: P, opacity: 0.8, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                    <Lock size={9} /> ADMIN PASSWORD
+                                </div>
+                                <input
+                                    type="password" value={password} onChange={e => setPassword(e.target.value)}
+                                    placeholder="Enter admin password"
+                                    required disabled={loading}
                                     style={{ width: '100%', boxSizing: 'border-box', background: 'var(--os-bg)', border: '1px solid var(--os-border)', color: 'var(--os-text)', padding: '9px 12px', fontFamily: '"Share Tech Mono",monospace', fontSize: 11, outline: 'none', letterSpacing: '0.02em', caretColor: P, transition: 'border-color 0.25s', borderRadius: 2 }}
                                     onFocus={e => e.target.style.borderColor = 'var(--os-primary)'}
                                     onBlur={e => e.target.style.borderColor = 'var(--os-border)'}
@@ -475,6 +490,19 @@ export default function AddProjectApp() {
                                         type="text" value={deployedUrl} onChange={e => setDeployedUrl(e.target.value)}
                                         placeholder="https://your-app.com"
                                         disabled={loading}
+                                        style={{ width: '100%', boxSizing: 'border-box', background: 'var(--os-bg)', border: '1px solid var(--os-border)', color: 'var(--os-text)', padding: '11px 16px', fontFamily: '"Share Tech Mono",monospace', fontSize: 12, outline: 'none', letterSpacing: '0.04em', caretColor: P, transition: 'border-color 0.25s' }}
+                                        onFocus={e => e.target.style.borderColor = `var(--os-primary)`}
+                                        onBlur={e => e.target.style.borderColor = 'var(--os-border)'}
+                                    />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: 9, fontWeight: "bold", letterSpacing: '0.24em', color: P, opacity: 0.8, marginBottom: 8, marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <Lock size={10} /> ADMIN PASSWORD
+                                    </div>
+                                    <input
+                                        type="password" value={password} onChange={e => setPassword(e.target.value)}
+                                        placeholder="Enter admin password"
+                                        required disabled={loading}
                                         style={{ width: '100%', boxSizing: 'border-box', background: 'var(--os-bg)', border: '1px solid var(--os-border)', color: 'var(--os-text)', padding: '11px 16px', fontFamily: '"Share Tech Mono",monospace', fontSize: 12, outline: 'none', letterSpacing: '0.04em', caretColor: P, transition: 'border-color 0.25s' }}
                                         onFocus={e => e.target.style.borderColor = `var(--os-primary)`}
                                         onBlur={e => e.target.style.borderColor = 'var(--os-border)'}

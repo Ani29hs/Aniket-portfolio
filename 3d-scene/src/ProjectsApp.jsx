@@ -893,24 +893,20 @@ export default function App() {
     });
 
     const handleRemoveProject = (id) => {
-        const pwd = window.prompt("Enter admin password to delete:");
-        if (pwd === "Aniket292006") {
-            const customProjects = JSON.parse(localStorage.getItem('systemos_custom_projects') || '[]');
-            const customIndex = customProjects.findIndex(p => p.id === id);
+        if (!window.confirm("Are you sure you want to remove this project?")) return;
+        const customProjects = JSON.parse(localStorage.getItem('systemos_custom_projects') || '[]');
+        const customIndex = customProjects.findIndex(p => p.id === id);
 
-            if (customIndex !== -1) {
-                customProjects.splice(customIndex, 1);
-                localStorage.setItem('systemos_custom_projects', JSON.stringify(customProjects));
-                setGhProjects(prev => prev.filter(p => p.id !== id));
-            } else {
-                setHiddenProjects(prev => {
-                    const next = [...prev, id];
-                    localStorage.setItem('systemos_hidden_projects', JSON.stringify(next));
-                    return next;
-                });
-            }
-        } else if (pwd !== null) {
-            alert("Access Denied: Incorrect Password.");
+        if (customIndex !== -1) {
+            customProjects.splice(customIndex, 1);
+            localStorage.setItem('systemos_custom_projects', JSON.stringify(customProjects));
+            setGhProjects(prev => prev.filter(p => p.id !== id));
+        } else {
+            setHiddenProjects(prev => {
+                const next = [...prev, id];
+                localStorage.setItem('systemos_hidden_projects', JSON.stringify(next));
+                return next;
+            });
         }
     };
 
