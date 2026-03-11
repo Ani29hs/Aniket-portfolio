@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Float, useGLTF, useAnimations } from '@react-three/drei';
+import { MeshoptDecoder } from 'meshoptimizer';
 
 // ── SVG Social Icons ──────────────────────────────────────────────────────────
 const GithubIcon = () => (
@@ -27,7 +28,9 @@ const SOCIAL_LINKS = [
 
 function AvatarModel() {
     const group = useRef();
-    const gltf = useGLTF('/waving.glb');
+    const gltf = useGLTF('/waving.glb', undefined, undefined, (loader) => {
+        loader.setMeshoptDecoder(MeshoptDecoder);
+    });
     const { actions } = useAnimations(gltf.animations, group);
     useEffect(() => {
         const actionNames = Object.keys(actions);

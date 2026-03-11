@@ -2,6 +2,7 @@ import React, { Suspense, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, Html, PerspectiveCamera, Sparkles } from '@react-three/drei';
+import { MeshoptDecoder } from 'meshoptimizer';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import SystemOS from './SystemOS';
@@ -9,7 +10,9 @@ import './index.css';
 
 // The 3D Terminal model with the projected Html screen menu
 function TerminalModel(props) {
-  const { scene } = useGLTF('/terminal.glb');
+  const { scene } = useGLTF('/terminal.glb', undefined, undefined, (loader) => {
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  });
 
   return (
     <group {...props}>
@@ -261,7 +264,7 @@ function RE7MainMenu({ onDiveIn, isLoaded }) {
         </div>
 
         <p className="gsap-subtitle opacity-0 mt-4 text-sm md:text-base tracking-[0.25em] font-mono translate-y-4" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          · FULL-STACK DEVELOPER   ·  AI ENTHUSIAST
+          · FULL-STACK DEVELOPER   ·  AI ML ENTHUSIAST
         </p>
 
         <div className="mt-10 pointer-events-auto flex justify-center md:justify-start">
