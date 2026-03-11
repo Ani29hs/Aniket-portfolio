@@ -892,8 +892,22 @@ export default function App() {
         catch { return []; }
     });
 
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deletePwd, setDeletePwd] = useState('');
+    const [deleteError, setDeleteError] = useState('');
+
     const handleRemoveProject = (id) => {
-        if (!window.confirm("Are you sure you want to remove this project?")) return;
+        setDeleteTarget(id);
+        setDeletePwd('');
+        setDeleteError('');
+    };
+
+    const confirmDelete = () => {
+        if (deletePwd !== "Aniket292006") {
+            setDeleteError('ACCESS DENIED');
+            return;
+        }
+        const id = deleteTarget;
         const customProjects = JSON.parse(localStorage.getItem('systemos_custom_projects') || '[]');
         const customIndex = customProjects.findIndex(p => p.id === id);
 
@@ -908,6 +922,8 @@ export default function App() {
                 return next;
             });
         }
+        setDeleteTarget(null);
+        setDeletePwd('');
     };
 
     // Single passive scroll listener
@@ -1027,6 +1043,46 @@ export default function App() {
 
                 <Footer />
             </div>
+
+            {/* ── DELETE PASSWORD MODAL ── */}
+            {deleteTarget && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onClick={() => setDeleteTarget(null)}>
+                    <div style={{ background: 'var(--os-bg, #0a0a0a)', border: '1px solid var(--os-border, #333)', borderRadius: 8, padding: '24px 28px', maxWidth: 340, width: '90%', fontFamily: '"Share Tech Mono",monospace' }}
+                        onClick={e => e.stopPropagation()}>
+                        <div style={{ fontSize: 10, letterSpacing: '0.2em', color: 'var(--os-primary, #f97316)', marginBottom: 16, fontWeight: 'bold' }}>
+                            🔒 ADMIN AUTHENTICATION
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--os-text, #fff)', marginBottom: 12, opacity: 0.7 }}>
+                            Enter admin password to delete this project:
+                        </div>
+                        <input
+                            type="password"
+                            value={deletePwd}
+                            onChange={e => { setDeletePwd(e.target.value); setDeleteError(''); }}
+                            placeholder="Password"
+                            autoFocus
+                            onKeyDown={e => e.key === 'Enter' && confirmDelete()}
+                            style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: `1px solid ${deleteError ? '#f87171' : 'var(--os-border, #333)'}`, color: 'var(--os-text, #fff)', padding: '10px 14px', fontFamily: '"Share Tech Mono",monospace', fontSize: 12, outline: 'none', borderRadius: 4, caretColor: 'var(--os-primary, #f97316)' }}
+                        />
+                        {deleteError && (
+                            <div style={{ fontSize: 10, color: '#f87171', marginTop: 8, letterSpacing: '0.1em' }}>
+                                ⚠ {deleteError}
+                            </div>
+                        )}
+                        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                            <button onClick={() => setDeleteTarget(null)}
+                                style={{ flex: 1, padding: '8px 0', background: 'transparent', border: '1px solid var(--os-border, #333)', color: 'var(--os-text, #fff)', fontFamily: '"Share Tech Mono",monospace', fontSize: 10, letterSpacing: '0.15em', cursor: 'pointer', borderRadius: 4 }}>
+                                CANCEL
+                            </button>
+                            <button onClick={confirmDelete}
+                                style={{ flex: 1, padding: '8px 0', background: '#dc2626', border: '1px solid #dc2626', color: '#fff', fontFamily: '"Share Tech Mono",monospace', fontSize: 10, letterSpacing: '0.15em', cursor: 'pointer', borderRadius: 4, fontWeight: 'bold' }}>
+                                DELETE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
