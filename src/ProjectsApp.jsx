@@ -830,7 +830,7 @@ function Footer() {
                 boxShadow: "0 30px 60px rgba(0,0,0,0.3), inset 0 1px 0 var(--os-border-active)",
                 animation: isMobile ? "none" : "floatBox 6s ease-in-out infinite"
             }}>
-                <form action="https://formsubmit.co/aniketsharma3113@gmail.com" method="POST" onSubmit={handleSubmit}>
+                <form action="https://formsubmit.co/aniketsharma3113+portfolio@gmail.com" method="POST" onSubmit={handleSubmit}>
                     <input type="hidden" name="_captcha" value="false" />
                     <input type="hidden" name="_next" value={typeof window !== "undefined" ? window.location.href : ""} />
                     <input type="text" name="_honey" style={{ display: "none" }} />
