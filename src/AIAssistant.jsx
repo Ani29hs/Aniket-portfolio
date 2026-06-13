@@ -87,23 +87,21 @@ Answer as the AI assistant representing this portfolio. If asked something unrel
         setHasError(false);
 
         try {
-            const response = await fetch('http://localhost:11434/api/chat', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: 'qwen3:8b',
                     messages: [
                         { role: 'system', content: systemPrompt },
                         ...messages,
                         { role: 'user', content: userMsg }
-                    ],
-                    stream: true
+                    ]
                 })
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Ollama Error: ${response.status} - ${errorText}`);
+                throw new Error(`API Error: ${response.status} - ${errorText}`);
             }
 
             const reader = response.body.getReader();
@@ -118,13 +116,18 @@ Answer as the AI assistant representing this portfolio. If asked something unrel
                 if (done) break;
                 
                 const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n').filter(l => l.trim());
+                // SSE format uses "data: {...}" lines
+                const lines = chunk.split('\n').filter(l => l.trim() && l.startsWith('data: '));
                 
                 for (const line of lines) {
+                    const dataStr = line.replace('data: ', '').trim();
+                    if (dataStr === '[DONE]') break;
+                    
                     try {
-                        const parsed = JSON.parse(line);
-                        if (parsed.message?.content) {
-                            assistantMsg += parsed.message.content;
+                        const parsed = JSON.parse(dataStr);
+                        const content = parsed.choices?.[0]?.delta?.content;
+                        if (content) {
+                            assistantMsg += content;
                             // Turn off typing indicator ONLY when we receive the first actual text
                             if (assistantMsg.trim().length > 0) setIsTyping(false);
                             
@@ -146,10 +149,10 @@ Answer as the AI assistant representing this portfolio. If asked something unrel
                 const newMsgs = [...prev];
                 // If the last message was the empty assistant message, overwrite it with error
                 if (newMsgs[newMsgs.length - 1].role === 'assistant' && newMsgs[newMsgs.length - 1].content === '') {
-                     newMsgs[newMsgs.length - 1].content = "⚠️ Error: Cannot connect to local Qwen model. Please ensure Ollama is running (`ollama run qwen3:8b`) and OLLAMA_ORIGINS=\"*\" is set.";
+                     newMsgs[newMsgs.length - 1].content = "⚠️ Error: Cannot connect to AI backend. Please ensure the GROQ_API_KEY is configured in Vercel.";
                      return newMsgs;
                 }
-                return [...prev, { role: 'assistant', content: "⚠️ Error: Cannot connect to local Qwen model. Please ensure Ollama is running (`ollama run qwen3:8b`) and OLLAMA_ORIGINS=\"*\" is set." }];
+                return [...prev, { role: 'assistant', content: "⚠️ Error: Cannot connect to AI backend. Please ensure the GROQ_API_KEY is configured in Vercel." }];
             });
         } finally {
             setIsTyping(false);
