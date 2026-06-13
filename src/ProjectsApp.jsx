@@ -766,7 +766,7 @@ function Captcha({ onValid }) {
 
     const handleChange = e => {
         const v = e.target.value; setAns(v);
-        const valid = v.toLowerCase() === text.toLowerCase();
+        const valid = v === text;
         setOk(valid); onValid(valid);
     };
 
@@ -779,7 +779,7 @@ function Captcha({ onValid }) {
                     <div style={{ position: "absolute", top: 4, right: 4, fontFamily: '"Outfit",monospace', fontSize: 8, color: "var(--os-text-muted)" }}>↻</div>
                 </div>
                 <input value={ans} onChange={handleChange} placeholder="Type Code..."
-                    style={{ width: 100, height: 50, padding: "0 12px", background: "rgba(0,0,0,0.4)", border: `1px solid ${ok === false ? "#ef4444" : ok ? "#22c55e" : "rgba(128,128,128,0.2)"}`, borderRadius: 6, color: "var(--os-text)", fontFamily: '"Outfit",monospace', fontSize: 14, outline: "none", textAlign: "center", textTransform: "uppercase" }}
+                    style={{ width: 100, height: 50, padding: "0 12px", background: "rgba(0,0,0,0.4)", border: `1px solid ${ok === false ? "#ef4444" : ok ? "#22c55e" : "rgba(128,128,128,0.2)"}`, borderRadius: 6, color: "var(--os-text)", fontFamily: '"Outfit",monospace', fontSize: 14, outline: "none", textAlign: "center" }}
                 />
             </div>
         </div>
