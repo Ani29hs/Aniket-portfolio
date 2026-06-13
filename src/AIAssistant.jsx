@@ -2,7 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PROJECTS } from './ProjectsApp';
 import { CERTIFICATES } from './CertificatesApp';
 
+function useIsMobile() {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return isMobile;
+}
+
 export default function AIAssistant() {
+    const isMobile = useIsMobile();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -136,6 +147,9 @@ Answer as the AI assistant representing this portfolio. If asked something unrel
                                 newMsgs[newMsgs.length - 1].content = assistantMsg;
                                 return newMsgs;
                             });
+                            
+                            // Artificial delay to simulate local LLM natural typing speed
+                            await new Promise(resolve => setTimeout(resolve, 25));
                         }
                     } catch (e) {
                         // ignore parse errors for partial chunks
@@ -160,12 +174,13 @@ Answer as the AI assistant representing this portfolio. If asked something unrel
     };
 
     return (
-        <div style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 16 }}>
+        <div style={{ position: 'fixed', bottom: isMobile ? 16 : 32, right: isMobile ? 16 : 32, zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 16 }}>
             {/* Chat Window */}
             {isOpen && (
                 <div style={{ 
-                    width: 380, 
-                    height: 500, 
+                    width: isMobile ? 'calc(100vw - 32px)' : 380, 
+                    height: isMobile ? 'calc(100vh - 120px)' : 500,
+                    maxHeight: isMobile ? 650 : 500,
                     background: 'var(--os-glass)', 
                     border: '1px solid var(--os-border)', 
                     borderRadius: '24px', 
